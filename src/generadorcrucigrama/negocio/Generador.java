@@ -118,6 +118,34 @@ public class Generador {
         }
     }
 
+    public void escribirPalabra(Palabra palabra, int x, int y, int direccion) {
+        int largo = palabra.getRespuesta().length();
+        palabra.setDireccion(direccion);
+        palabra.setX(x);
+        palabra.setY(y);
+        if (direccion == HORIZONTAL) {
+            if (x > 0) {
+                tablero[y][x - 1] = '*';
+            }
+            if ((x + largo) < tablero.length) {
+                tablero[y][x + largo] = '*';
+            }
+            for (int i = 0; i < largo; i++) {
+                tablero[y][x + i] = palabra.getRespuesta().charAt(i);
+            }
+        } else {
+            if (y > 0) {
+                tablero[y - 1][x] = '*';
+            }
+            if ((y + largo) < tablero.length) {
+                tablero[y + largo][x] = '*';
+            }
+            for (int i = 0; i < largo; i++) {
+                tablero[y + i][x] = palabra.getRespuesta().charAt(i);
+            }
+        }
+    }
+
     /**
      * Funcion que concatena un array de caracateres desde la posicion inicio
      * hasta la posicion (fin - 1) y lo devuelve como una cadena de tipo String
