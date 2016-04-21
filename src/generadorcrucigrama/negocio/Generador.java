@@ -21,7 +21,7 @@ public class Generador {
     private int dimension;
     private char tablero[][];
     private List<Palabra> palabras;
-    private List<Palabra> palabrasNoUsadas;
+    private List<Palabra> listasUsadas;
     private List<Palabra> palabrasHorizontales;
     private List<Palabra> palabrasVerticales;
 
@@ -29,7 +29,7 @@ public class Generador {
         dimension = 0;
         tablero = null;
         palabras = new ArrayList<>();
-        palabrasNoUsadas = new ArrayList<>();
+        listasUsadas = new ArrayList<>();
         palabrasHorizontales = new ArrayList<>();
         palabrasVerticales = new ArrayList<>();
 
@@ -238,4 +238,152 @@ public class Generador {
 
     }
 
+    public boolean colocarPalabra(Palabra palabra, int x, int y, int direccion, List<Palabra> lista) {
+        // Valido que no haya un caracter antes del comienzo
+        int largo = palabra.getRespuesta().length();
+        if (direccion == HORIZONTAL) {
+            if (x < 0 || (x + largo) > tablero.length) {
+                return false;
+            }
+            if (x > 0 && !libre(x - 1, y)) {
+                return false;
+            }
+            if ((x + largo) < tablero.length && !libre(x + largo, y)) {
+                return false;
+            }
+        } else {
+            if (y < 0 || (y + largo) > (tablero[0].length)) {
+                return false;
+            }
+            if (y > 0 && !libre(x, y - 1)) {
+                return false;
+            }
+            if ((y + largo) < (tablero.length) && !libre(x, y + largo)) {
+                return false;
+            }
+        }
+        // Pruebo si la palabra entra.
+        for (int i = 0; i < largo; i++) {
+            char letra = ' ';
+            if (direccion == HORIZONTAL) {
+                letra = tablero[y][x + i];
+            } else {
+                letra = tablero[y + i][x];
+            }
+            // No se puede poner una palabra en los casilleros negros
+            if (letra == '*') {
+                return false;
+            }
+            // Tampoco se puede poner si ya hay otra letra
+            if (letra != ' ' && letra != palabra.getRespuesta().charAt(i)) {
+                return false;
+            }
+        }
+        // Si entra, la escribo y la saco de la lista:
+        escribirPalabra(palabra, x, y, direccion);
+        lista.remove(palabra);
+        listasUsadas.add(palabra);//agregado usuario
+        // Validacion, recursiva
+        //boolean todomal = false;
+        int ant[] = new int[2];
+        int pos[] = new int[2];
+        int sig[] = new int[2];
+        for (int i = 0; i < palabra.getRespuesta().length(); i++) {
+            if (direccion == HORIZONTAL) {
+                ant[0] = (x + i);
+                ant[1] = (y - 1);
+                pos[0] = (x + i);
+                pos[1] = (y);
+                sig[0] = (x + i);
+                sig[1] = (y + 1);
+            } else {
+                ant[0] = (x - 1);
+                ant[1] = (y + i);
+                pos[0] = (x);
+                pos[1] = (y + i);
+                sig[0] = (x + 1);
+                sig[1] = (y + i);
+            }
+            String pisada = tomarPalabra(pos[0], pos[1], direccion * -1);
+
+            // Valida si hay otras letras pero no una palabra
+            if (pisada.isEmpty()) // Chequeo si alguno de los dos tiene una letra.
+            {
+                if (!libre(sig[0], sig[1]) || !libre(ant[0], ant[1])) {
+                    //				todomal = True
+                    //				break
+
+                    // Defino las variables para no estar buscandolas
+                    char actual = tablero[pos[1]][pos[0]];
+                    char anterior = ' ';
+                    char siguiente = ' ';
+                    if (ant[0] > 0 && ant[1] > 0) {
+                        anterior = tablero[ant[1]][ant[0]];
+                    } else {
+                        anterior = ' ';
+                    }
+                    if (sig[0] < tablero[y].length && sig[1] < tablero.length) {
+                        siguiente = tablero[sig[1]][sig[0]];
+                    } else {
+                        siguiente = ' ';
+                    }
+
+                    boolean colocada = false;
+                    // Hay que poner otra palabra.
+                    for (Palabra nueva : lista) {
+                        int par[] = new int[2];
+                        int ubi = 0;
+                        if (!libre(ant[0], ant[1])) {
+                            par[0] = anterior;
+                            par[1] = actual;
+                            ubi = 0;
+                        } else {
+                            par[0] = actual;
+                            par[1] = siguiente;
+                            ubi = 1;
+                            // Trato de ubicarla en algún lugar
+                            for (int l = 0; l < nueva.getRespuesta().length() - 1; l++) {
+                                // Llamada recursiva
+                                if (nueva.getRespuesta().charAt(l) == par[0] && nueva.getRespuesta().charAt(l + 1) == par[1]) {
+                                    if (direccion == HORIZONTAL) {
+                                        if (colocarPalabra(nueva, pos[0], pos[1] - l - ubi, direccion * -1, lista)) {
+                                            colocada = true;
+                                            break;
+                                        }
+                                    } else if (colocarPalabra(nueva, pos[0] - l - ubi, pos[1], direccion * -1, lista)) {
+                                        colocada = true;
+                                        break;
+                                    }
+                                    // Si esta palabra anduvo, salgo del bucle
+                                    if (colocada) {
+                                        break;
+                                    }
+                                }
+                                // Si ninguna palabra pudo ser colocada, hay que volver
+                                // esta para atras.
+                                if (!colocada) {
+                                    lista.add(palabra);
+                                    listasUsadas.remove(palabra);
+                                    borrarPalabra(x, y, direccion, palabra.getRespuesta().length(), lista);
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return true;
+    }
+
+    public List<Integer> eliminarRepetidos(List<Integer> lista) {
+        List<Integer> listaNueva = new ArrayList<Integer>();
+        for (int numero : lista) {
+            if (!listaNueva.contains(numero)) {
+                listaNueva.add(numero);
+            }
+        }
+        return listaNueva;
+    }
 }

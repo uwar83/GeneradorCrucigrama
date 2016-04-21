@@ -5,12 +5,14 @@
  */
 package generadorcrucigrama.dato;
 
+import java.util.Objects;
+
 /**
  * Hola como estan todos
+ *
  * @author Uwar Navia Cari
  * @version 1.0
  */
-
 public class Palabra {
 
     private int numero;
@@ -101,6 +103,24 @@ public class Palabra {
         return "numero: " + numero + " - x: " + x + " - y: "
                 + y + " - Enunciado: " + enunciado + " - Respuesta: "
                 + respuesta + " - Direccion: " + dir;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Palabra) {
+            Palabra p = (Palabra) obj;
+            return p.enunciado.equalsIgnoreCase(enunciado) && p.respuesta.equalsIgnoreCase(respuesta);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 61 * hash + Objects.hashCode(this.enunciado);
+        hash = 61 * hash + Objects.hashCode(this.respuesta);
+        return hash;
     }
 
 }
