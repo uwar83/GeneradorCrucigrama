@@ -1,0 +1,15 @@
+## YAML Template.
+---
+JDialog(name=dlgPalabra, title=label.dlgpalabra.title, size=packed, defaultCloseOperation=hideOnClose , resizable=false):
+    - JButton(name=btnNuevo,text=label.nuevo, onAction=nuevo, verticalTextPosition=bottom, horizontalTextPosition=center)    
+    - JButton(name=btnEliminar,text=label.eliminar, onAction=eliminar, verticalTextPosition=bottom, horizontalTextPosition=center)        
+    - JButton(name=btnSalir,text=label.salir, onAction=salir, verticalTextPosition=bottom, horizontalTextPosition=center)
+    - JScrollPane(name=scroll):
+        JTable(name=table,autoResizeMode=AUTO_RESIZE_OFF,selectionMode=SINGLE_SELECTION):
+            - EventTableModel(name=modeloTabla,source=datos)            
+            - TableColumn(name=enunciado,source=enunciado,headerValue=label.enunciado,resizable=false,editable=true)            
+            - TableColumn(name=respuesta,source=respuesta,headerValue=label.respuesta,resizable=false,editable=true)            
+    - MigLayout: |
+            [grow,800]
+            |btnNuevo+*=1,btnEliminar=1,btnSalir=1
+            scroll+*                                                 [600,grow]                    

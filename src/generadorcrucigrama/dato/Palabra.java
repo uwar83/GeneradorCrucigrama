@@ -28,6 +28,8 @@ public class Palabra {
      *
      */
     public Palabra() {
+        enunciado="";
+        respuesta="";
     }
 
     /**
